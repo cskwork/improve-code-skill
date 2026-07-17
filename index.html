@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>improve-code — goal-driven refactoring for agents and humans</title>
+<meta name="description" content="A Claude Code skill that refactors a codebase so one correct change needs less context — for an AI agent and a human alike. Grounded in software fundamentals, applied under green tests.">
+<meta property="og:title" content="improve-code">
+<meta property="og:description" content="Refactor so one correct change needs less context — for an AI agent and a human alike.">
+<meta property="og:type" content="website">
+<style>
+  :root{
+    --bg:#0b0e14; --panel:#11151f; --panel-2:#0e121b;
+    --ink:#e7e9ee; --muted:#9aa3b2; --faint:#5b6472;
+    --line:#1e2430; --line-2:#2a3242;
+    --accent:#3fb950; --accent-soft:#2ea04326; --accent-ink:#7ee787;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    --wrap:940px;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:var(--sans);line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--accent-ink);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:var(--wrap);margin:0 auto;padding:0 24px}
+  code,kbd,pre{font-family:var(--mono)}
+
+  /* hero */
+  header.hero{
+    position:relative;overflow:hidden;
+    border-bottom:1px solid var(--line);
+    background:
+      radial-gradient(60% 120% at 50% -10%, #12331e 0%, transparent 60%),
+      linear-gradient(180deg,#0d1119, var(--bg));
+  }
+  .hero-grid{
+    position:absolute;inset:0;opacity:.35;pointer-events:none;
+    background-image:linear-gradient(var(--line) 1px,transparent 1px),
+      linear-gradient(90deg,var(--line) 1px,transparent 1px);
+    background-size:44px 44px;
+    mask-image:radial-gradient(70% 60% at 50% 0%,#000 30%,transparent 75%);
+  }
+  .hero-inner{position:relative;padding:84px 24px 72px;text-align:center}
+  .eyebrow{
+    display:inline-block;font-family:var(--mono);font-size:12.5px;letter-spacing:.12em;
+    text-transform:uppercase;color:var(--accent-ink);
+    border:1px solid var(--line-2);background:var(--accent-soft);
+    padding:6px 12px;border-radius:999px;margin-bottom:26px;
+  }
+  h1.logo{
+    font-family:var(--mono);font-weight:600;letter-spacing:-.01em;
+    font-size:clamp(38px,7vw,68px);margin:0 0 18px;
+  }
+  h1.logo .caret{color:var(--accent);font-weight:400}
+  .tagline{font-size:clamp(18px,2.6vw,23px);color:var(--ink);max-width:640px;margin:0 auto 14px}
+  .subtag{color:var(--muted);max-width:600px;margin:0 auto 34px}
+  .cta{display:flex;gap:14px;justify-content:center;flex-wrap:wrap}
+  .btn{
+    display:inline-flex;align-items:center;gap:9px;font-weight:600;font-size:15px;
+    padding:12px 20px;border-radius:10px;border:1px solid var(--line-2);
+    transition:transform .08s ease,border-color .15s ease,background .15s ease;
+  }
+  .btn:hover{text-decoration:none;transform:translateY(-1px)}
+  .btn.primary{background:var(--accent);color:#07130a;border-color:transparent}
+  .btn.primary:hover{background:#4cc85e}
+  .btn.ghost{color:var(--ink);background:#0f1420}
+  .btn.ghost:hover{border-color:var(--faint)}
+
+  /* sections */
+  section{padding:64px 0;border-bottom:1px solid var(--line)}
+  .kicker{font-family:var(--mono);font-size:12.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent-ink);margin:0 0 10px}
+  h2{font-size:clamp(24px,3.4vw,32px);margin:0 0 14px;letter-spacing:-.01em}
+  .lead{color:var(--muted);max-width:680px;margin:0 0 34px;font-size:17px}
+
+  /* dual bar callout */
+  .bar{
+    background:linear-gradient(180deg,var(--panel),var(--panel-2));
+    border:1px solid var(--line-2);border-radius:14px;padding:26px 28px;
+    display:grid;grid-template-columns:1fr 1fr;gap:26px;
+  }
+  .bar h3{margin:0 0 6px;font-size:16px}
+  .bar .who{font-family:var(--mono);color:var(--accent-ink);font-size:13px}
+  .bar p{margin:6px 0 0;color:var(--muted);font-size:15px}
+  .bar .rule{grid-column:1/-1;border-top:1px solid var(--line);padding-top:18px;color:var(--ink);font-size:15.5px}
+  .bar .rule b{color:var(--accent-ink);font-weight:600}
+
+  /* cards */
+  .cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:16px}
+  .card{
+    background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--accent);
+    border-radius:12px;padding:20px 22px;
+  }
+  .card h3{margin:0 0 8px;font-size:16px;font-family:var(--mono);color:var(--ink)}
+  .card p{margin:0;color:var(--muted);font-size:14.5px}
+
+  /* steps */
+  ol.steps{list-style:none;counter-reset:s;margin:0;padding:0;display:grid;gap:2px}
+  ol.steps li{
+    counter-increment:s;position:relative;padding:18px 20px 18px 74px;
+    border:1px solid var(--line);background:var(--panel-2);
+  }
+  ol.steps li:first-child{border-radius:12px 12px 0 0}
+  ol.steps li:last-child{border-radius:0 0 12px 12px}
+  ol.steps li::before{
+    content:counter(s,decimal-leading-zero);position:absolute;left:20px;top:16px;
+    font-family:var(--mono);font-size:18px;color:var(--accent);font-weight:600;
+  }
+  ol.steps h3{margin:0 0 3px;font-size:16px}
+  ol.steps p{margin:0;color:var(--muted);font-size:14.5px}
+  ol.steps .done{display:block;margin-top:7px;font-family:var(--mono);font-size:12.5px;color:var(--faint)}
+  ol.steps .done b{color:var(--accent-ink);font-weight:400}
+
+  /* code / tree */
+  pre.block{
+    background:#080b11;border:1px solid var(--line-2);border-radius:12px;
+    padding:20px 22px;overflow:auto;font-size:13.5px;line-height:1.75;color:#cdd6e4;margin:0;
+  }
+  pre.block .c{color:var(--faint)}
+  pre.block .g{color:var(--accent-ink)}
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+
+  /* footer */
+  footer{padding:44px 0 60px;color:var(--muted);font-size:14px}
+  footer .src{color:var(--faint);font-size:13px;line-height:1.9;margin-top:14px}
+  .disc{color:var(--faint);font-size:13px;font-style:italic;margin-top:8px}
+
+  @media(max-width:680px){
+    .bar{grid-template-columns:1fr}
+    .two{grid-template-columns:1fr}
+    ol.steps li{padding-left:64px}
+  }
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <div class="hero-grid"></div>
+  <div class="hero-inner">
+    <span class="eyebrow">Claude Code skill</span>
+    <h1 class="logo"><span class="caret">&gt;</span> improve-code</h1>
+    <p class="tagline">Refactor so that one correct change needs less context — for an AI agent and a human alike.</p>
+    <p class="subtag">Goal-driven, grounded in software fundamentals, and it <strong>applies</strong> the change under green tests instead of just advising.</p>
+    <div class="cta">
+      <a class="btn primary" href="https://github.com/cskwork/improve-code-skill">View on GitHub</a>
+      <a class="btn ghost" href="#install">Install</a>
+    </div>
+  </div>
+</header>
+
+<main>
+
+<section id="what">
+  <div class="wrap">
+    <p class="kicker">The bar</p>
+    <h2>Legible to an agent, and to the next human</h2>
+    <p class="lead">Most "clean code" advice optimizes for one reader. This skill holds a dual bar as non-negotiable — and treats every principle as a heuristic a smell triggers, never a rule to apply top-down.</p>
+    <div class="bar">
+      <div>
+        <span class="who">// for the agent</span>
+        <h3>No project memory, a narrow view</h3>
+        <p>Find the behavior from a name, change one bounded area behind a stable seam, and run the smallest verification — without loading the whole system.</p>
+      </div>
+      <div>
+        <span class="who">// for the human</span>
+        <h3>Reads top-to-bottom, in clear language</h3>
+        <p>Names map to domain concepts, the happy path is un-indented, and the <em>why</em> lives in a comment only where the code cannot say it.</p>
+      </div>
+      <div class="rule">Both must be able to <b>find the behavior, change one bounded place, and verify it</b> — without reading the whole system. If not, the design leaks hidden context, and that is the thing to fix.</div>
+    </div>
+  </div>
+</section>
+
+<section id="ideas">
+  <div class="wrap">
+    <p class="kicker">Leading ideas</p>
+    <h2>Five words that carry the work</h2>
+    <p class="lead">Repeated across the skill so the agent reaches for the same behavior every run.</p>
+    <div class="cards">
+      <div class="card"><h3>deep module</h3><p>A small, stable interface hiding a large implementation. Deepen shallow wrappers; never shred a deep thing into fragments.</p></div>
+      <div class="card"><h3>blast radius</h3><p>How many places one change must touch. Good structure keeps it to one — high locality.</p></div>
+      <div class="card"><h3>seam</h3><p>Where behavior can be substituted (a fake clock, network, DB). Where tests attach and internals get rewritten safely.</p></div>
+      <div class="card"><h3>net-complexity gate</h3><p>A change must remove more to understand than it adds. One implementation behind an interface, with no volatility, fails the gate.</p></div>
+      <div class="card"><h3>smell &rarr; fix</h3><p>Work only where a smell is present. Absent a smell and a named payoff, leave the code alone.</p></div>
+      <div class="card"><h3>green tests</h3><p>Change structure only while tests stay green. One hat at a time: restructure, or add behavior — never both.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="flow">
+  <div class="wrap">
+    <p class="kicker">How a run goes</p>
+    <h2>Eight steps, each with a checkable gate</h2>
+    <p class="lead">It starts by asking your goal, and ends only with evidence.</p>
+    <ol class="steps">
+      <li><h3>Set the goal</h3><p>Ask what to improve and why — target, payoff, constraints, definition of done. No guessing.</p><span class="done"><b>Done when</b> you restate the goal and the user confirms it.</span></li>
+      <li><h3>Explore and pin the ground truth</h3><p>Map the target with whatever navigation tools the environment offers; confirm the suite is green.</p><span class="done"><b>Done when</b> current behavior is stated plainly and the test state is known.</span></li>
+      <li><h3>Diagnose against the principle set</h3><p>Match the code to a smell catalog; keep only fixes that pass the net-complexity gate.</p><span class="done"><b>Done when</b> each item names its smell, principle, fix, and payoff.</span></li>
+      <li><h3>Agree the plan</h3><p>Recommend the smallest high-leverage set; surface risk and ADR conflicts.</p><span class="done"><b>Done when</b> the user picks the fixes to apply.</span></li>
+      <li><h3>Pin behavior with tests</h3><p>Add characterization tests to any untested area before touching it.</p><span class="done"><b>Done when</b> every area to be touched is under a green test.</span></li>
+      <li><h3>Apply surgically — one hat, small steps</h3><p>One named move at a time; green &rarr; checkpoint, red &rarr; revert and retry smaller.</p><span class="done"><b>Done when</b> every fix is applied and the diff is scoped to the target.</span></li>
+      <li><h3>Make it navigable</h3><p>Names, docstrings, docs updated in the same diff, one source of truth.</p><span class="done"><b>Done when</b> renames, docs, and commands are all consistent and verified.</span></li>
+      <li><h3>Verify and record</h3><p>Run the real tests, lint, types, build; report what passed and record the decision.</p><span class="done"><b>Done when</b> checks are green with quoted evidence.</span></li>
+    </ol>
+  </div>
+</section>
+
+<section id="structure">
+  <div class="wrap">
+    <p class="kicker">What is in the box</p>
+    <h2>A lean spine, reference on demand</h2>
+    <p class="lead">Only <code>SKILL.md</code> loads every run. The rest is disclosed at the step that needs it.</p>
+    <div class="two">
+      <pre class="block"><span class="c"># repo layout</span>
+improve-code/
+├── SKILL.md              <span class="c">8-step spine</span>
+├── README.md
+├── reference/
+│   ├── PRINCIPLES.md     <span class="c">smell catalog</span>
+│   ├── SAFE-REFACTOR.md  <span class="c">tests + moves</span>
+│   └── DOCS.md           <span class="c">Diátaxis, ADR</span>
+└── docs/changelog/</pre>
+      <pre class="block" id="install"><span class="c"># install for Claude Code</span>
+git clone https://github.com/cskwork/improve-code-skill
+ln -s <span class="g">"$(pwd)/improve-code-skill"</span> \
+   ~/.claude/skills/improve-code
+
+<span class="c"># then, in Claude Code:</span>
+<span class="g">&gt;</span> improve-code
+<span class="c"># or just ask it to refactor a target</span></pre>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <p><a href="https://github.com/cskwork/improve-code-skill">github.com/cskwork/improve-code-skill</a> · a Claude Code skill · tool-agnostic and self-contained</p>
+    <p class="src">Grounded in Ousterhout (<em>A Philosophy of Software Design</em>), Parnas (information hiding), Fowler &amp; Beck (<em>Refactoring</em>), Feathers (<em>Working Effectively with Legacy Code</em>), Dan North (CUPID), the connascence taxonomy, Diátaxis, and current agent-codebase guidance.</p>
+    <p class="disc">Principles are heuristics, not laws — the skill applies them where a smell is present and the net-complexity gate is passed.</p>
+  </div>
+</footer>
+
+</main>
+</body>
+</html>
