@@ -1,0 +1,227 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>improve-code — the easy guide</title>
+<meta name="description" content="A plain-language guide to improve-code: what it does, how it works, and the words explained simply. Anyone can follow it.">
+<style>
+  :root{
+    --bg:#0b0e14; --panel:#11151f; --panel-2:#0e121b;
+    --ink:#e7e9ee; --muted:#9aa3b2; --faint:#5b6472;
+    --line:#1e2430; --line-2:#2a3242;
+    --accent:#3fb950; --accent-soft:#2ea04326; --accent-ink:#7ee787;
+    --mono:ui-monospace,SFMono-Regular,"SF Mono",Menlo,Consolas,monospace;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);line-height:1.7;-webkit-font-smoothing:antialiased}
+  a{color:var(--accent-ink);text-decoration:none}
+  a:hover{text-decoration:underline}
+  code{font-family:var(--mono);background:#0f1420;border:1px solid var(--line);border-radius:5px;padding:1px 6px;font-size:.9em;color:#cdd6e4}
+
+  /* top bar */
+  .topbar{position:sticky;top:0;z-index:10;background:rgba(11,14,20,.85);backdrop-filter:blur(8px);border-bottom:1px solid var(--line)}
+  .topbar .in{max-width:1140px;margin:0 auto;padding:14px 24px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{font-family:var(--mono);font-weight:600}
+  .brand .caret{color:var(--accent)}
+  .topbar .links{display:flex;gap:18px;font-size:14px}
+
+  /* layout */
+  .shell{max-width:1140px;margin:0 auto;padding:0 24px;display:grid;grid-template-columns:240px 1fr;gap:44px;align-items:start}
+  nav.toc{position:sticky;top:78px;padding:30px 0;font-size:14px}
+  nav.toc .h{font-family:var(--mono);font-size:11.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--faint);margin:0 0 12px}
+  nav.toc ol{list-style:none;margin:0;padding:0;display:grid;gap:3px}
+  nav.toc a{display:block;color:var(--muted);padding:6px 12px;border-left:2px solid var(--line);border-radius:0 6px 6px 0}
+  nav.toc a:hover{color:var(--ink);border-left-color:var(--accent);background:#0f1420;text-decoration:none}
+
+  main{padding:30px 0 80px;min-width:0}
+  .hero-h{margin:6px 0 6px;font-size:clamp(28px,4vw,40px);letter-spacing:-.01em}
+  .hero-sub{color:var(--muted);font-size:18px;margin:0 0 10px}
+  .minute{display:inline-block;font-family:var(--mono);font-size:12px;color:var(--accent-ink);border:1px solid var(--line-2);background:var(--accent-soft);padding:5px 11px;border-radius:999px;margin-bottom:26px}
+
+  section.doc{padding:26px 0;border-top:1px solid var(--line)}
+  section.doc:first-of-type{border-top:none}
+  h2{font-size:23px;letter-spacing:-.01em;margin:0 0 12px;scroll-margin-top:80px}
+  h2 .n{font-family:var(--mono);color:var(--accent);font-size:16px;margin-right:10px}
+  p{margin:0 0 14px;color:#d7dbe4}
+  .muted{color:var(--muted)}
+  .analogy{border-left:3px solid var(--accent);background:var(--panel);border-radius:0 10px 10px 0;padding:14px 18px;margin:0 0 16px;color:var(--muted);font-size:15px}
+  .analogy b{color:var(--accent-ink);font-weight:600}
+
+  ol.plain{margin:0 0 8px;padding-left:0;list-style:none;counter-reset:p;display:grid;gap:10px}
+  ol.plain li{counter-increment:p;position:relative;padding:12px 16px 12px 52px;background:var(--panel-2);border:1px solid var(--line);border-radius:10px}
+  ol.plain li::before{content:counter(p);position:absolute;left:14px;top:11px;width:24px;height:24px;border-radius:50%;background:var(--accent-soft);border:1px solid var(--line-2);color:var(--accent-ink);font-family:var(--mono);font-size:13px;display:grid;place-items:center}
+  ol.plain b{color:var(--ink)}
+
+  dl.gloss{margin:0;display:grid;gap:12px}
+  dl.gloss div{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px 18px}
+  dl.gloss dt{font-family:var(--mono);color:var(--accent-ink);font-size:14.5px;margin-bottom:3px}
+  dl.gloss dd{margin:0;color:var(--muted);font-size:15px}
+
+  ul.plain{margin:0 0 14px;padding-left:0;list-style:none;display:grid;gap:8px}
+  ul.plain li{position:relative;padding-left:26px;color:#d7dbe4}
+  ul.plain li::before{content:"›";position:absolute;left:6px;color:var(--accent);font-weight:700}
+  ul.no li::before{content:"✕";color:#e5787a;font-weight:400}
+  ul.yes li::before{content:"✓";color:var(--accent)}
+
+  pre{background:#080b11;border:1px solid var(--line-2);border-radius:10px;padding:16px 18px;overflow:auto;font-family:var(--mono);font-size:13px;line-height:1.7;color:#cdd6e4;margin:0 0 14px}
+  pre .c{color:var(--faint)}
+  pre .g{color:var(--accent-ink)}
+
+  .example{background:var(--panel);border:1px solid var(--line-2);border-radius:12px;padding:18px 20px;margin:0 0 8px}
+  .example .step{display:flex;gap:12px;padding:8px 0;border-top:1px dashed var(--line)}
+  .example .step:first-child{border-top:none}
+  .example .tag{flex:0 0 84px;font-family:var(--mono);font-size:12px;color:var(--accent-ink)}
+  .example .step p{margin:0;font-size:14.5px}
+
+  .backtop{display:inline-block;margin-top:22px;font-size:13px;font-family:var(--mono);color:var(--faint)}
+  footer{border-top:1px solid var(--line);color:var(--faint);font-size:13.5px;padding:26px 0 40px}
+
+  @media(max-width:860px){
+    .shell{grid-template-columns:1fr;gap:0}
+    nav.toc{position:static;top:auto;padding:18px 0 6px;border-bottom:1px solid var(--line)}
+    nav.toc ol{grid-auto-flow:row}
+    .topbar .links{display:none}
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="in">
+    <a class="brand" href="index.html"><span class="caret">&larr;</span> improve-code</a>
+    <div class="links">
+      <a href="index.html">Home</a>
+      <a href="https://github.com/cskwork/improve-code-skill">GitHub</a>
+    </div>
+  </div>
+</div>
+
+<div class="shell">
+  <nav class="toc" aria-label="Contents">
+    <p class="h">On this page</p>
+    <ol>
+      <li><a href="#what">1 · What is it?</a></li>
+      <li><a href="#why">2 · Why use it?</a></li>
+      <li><a href="#idea">3 · The one big idea</a></li>
+      <li><a href="#steps">4 · What it does, step by step</a></li>
+      <li><a href="#words">5 · Words explained simply</a></li>
+      <li><a href="#example">6 · A quick example</a></li>
+      <li><a href="#wont">7 · What it will not do</a></li>
+      <li><a href="#use">8 · How to use it</a></li>
+      <li><a href="#faq">9 · FAQ</a></li>
+    </ol>
+  </nav>
+
+  <main>
+    <span class="minute">A 5-minute read · no jargon</span>
+    <h1 class="hero-h">The easy guide to improve-code</h1>
+    <p class="hero-sub">What it is, what it does, and the tricky words made simple — written so anyone can follow along.</p>
+
+    <section class="doc" id="what">
+      <h2><span class="n">1</span>What is it?</h2>
+      <p>improve-code is a helper you run through an AI coding assistant (like Claude Code or Codex). You point it at some code that feels messy or hard to follow, and it <strong>tidies the code up</strong> so both people and AI can read and change it easily — <strong>without changing what the program actually does</strong>.</p>
+      <div class="analogy">Think of it like <b>reorganizing a messy kitchen</b>. The same pots, pans, and food are all still there — but now everything has a labelled place, so anyone can walk in and cook without opening every drawer.</div>
+    </section>
+
+    <section class="doc" id="why">
+      <h2><span class="n">2</span>Why would I want it?</h2>
+      <ul class="plain">
+        <li>Code that is hard to read is hard to change safely — small edits turn into big risky ones.</li>
+        <li>AI assistants now do a lot of the editing, so code also needs to be easy for <em>them</em> to navigate.</li>
+        <li>improve-code fixes both at once, and it checks its work with tests, so nothing quietly breaks.</li>
+      </ul>
+    </section>
+
+    <section class="doc" id="idea">
+      <h2><span class="n">3</span>The one big idea</h2>
+      <p>Good code has a simple property: <strong>changing one thing means touching one place.</strong> Messy code is the opposite — to change a little, you hunt across many files and hold the whole thing in your head.</p>
+      <p class="muted">improve-code reshapes code toward the first kind. Everything it does serves that single goal: shrink how much you must understand to make one correct change.</p>
+    </section>
+
+    <section class="doc" id="steps">
+      <h2><span class="n">4</span>What it does, step by step</h2>
+      <p class="muted">A run always follows the same eight steps, and each one has a clear finish line before the next begins.</p>
+      <ol class="plain">
+        <li><b>Asks your goal.</b> It never guesses — it asks what you want improved and why.</li>
+        <li><b>Looks around.</b> It reads the code and runs the existing tests to check they pass.</li>
+        <li><b>Finds the problems.</b> It spots known messy patterns ("smells") that are worth fixing.</li>
+        <li><b>Agrees a plan.</b> It shows you a short list and lets you choose what to do.</li>
+        <li><b>Adds a safety net.</b> It writes tests that capture how the code behaves right now.</li>
+        <li><b>Makes the change carefully.</b> One small step at a time, re-running the tests after each.</li>
+        <li><b>Tidies names and docs.</b> So the next reader — person or AI — can find their way.</li>
+        <li><b>Double-checks and notes it down.</b> Runs everything, shows the proof, records what changed.</li>
+      </ol>
+    </section>
+
+    <section class="doc" id="words">
+      <h2><span class="n">5</span>Words explained simply</h2>
+      <p class="muted">You will see these terms in the skill. Here they are in plain English.</p>
+      <dl class="gloss">
+        <div><dt>deep module</dt><dd>A tool with a simple handle hiding complex machinery — like a microwave: one button, lots happening inside. This is the good kind.</dd></div>
+        <div><dt>shallow module</dt><dd>A wrapper that barely does anything but adds an extra step to get through. More hoops, no benefit — the kind to remove.</dd></div>
+        <div><dt>blast radius</dt><dd>How many places you must edit to make one change. Smaller is better.</dd></div>
+        <div><dt>seam</dt><dd>A spot where you can slot in a stand-in (like a crash-test dummy) so a part can be tested safely on its own.</dd></div>
+        <div><dt>smell</dt><dd>A warning sign that code might be messy. Not a bug — just a hint worth a look.</dd></div>
+        <div><dt>green tests</dt><dd>All the tests are passing. improve-code only reshapes code while the tests are green.</dd></div>
+        <div><dt>characterization test</dt><dd>A "before photo" of how the code behaves now, so you would instantly notice if anything changed.</dd></div>
+        <div><dt>net-complexity gate</dt><dd>A rule the skill lives by: only make a change if it removes more mess than it adds.</dd></div>
+      </dl>
+    </section>
+
+    <section class="doc" id="example">
+      <h2><span class="n">6</span>A quick example</h2>
+      <p>Say you have one function that quietly does three jobs and has grown to 200 tangled lines. You ask improve-code to make it easier to work with.</p>
+      <div class="example">
+        <div class="step"><span class="tag">goal</span><p>You say: "This function is hard to change — make it clearer, same behaviour."</p></div>
+        <div class="step"><span class="tag">safety net</span><p>It writes tests that pin down exactly what the function returns today.</p></div>
+        <div class="step"><span class="tag">reshape</span><p>It splits out the parts that genuinely stand alone, names them for what they do, and drops any pointless wrappers — one small step at a time, tests green throughout.</p></div>
+        <div class="step"><span class="tag">tidy</span><p>It updates the comments and docs it touched, so the next reader is not misled.</p></div>
+        <div class="step"><span class="tag">proof</span><p>It runs the full test suite and shows you it still behaves exactly the same.</p></div>
+      </div>
+      <p class="muted">Result: the same program, now readable in a minute instead of an hour — and safe to change.</p>
+    </section>
+
+    <section class="doc" id="wont">
+      <h2><span class="n">7</span>What it will <em>not</em> do</h2>
+      <p class="muted">So you can relax while it works:</p>
+      <ul class="plain no">
+        <li>It will not change what your program does — the behaviour stays identical.</li>
+        <li>It will not touch code that is unrelated to your goal.</li>
+        <li>It will not reshape code that has no test — it adds a safety net first.</li>
+        <li>It will not make big or risky changes without asking you first.</li>
+      </ul>
+    </section>
+
+    <section class="doc" id="use">
+      <h2><span class="n">8</span>How to use it</h2>
+      <p>Install it once for your AI assistant, then just ask.</p>
+      <pre><span class="c"># install (Claude Code / Codex share one folder here)</span>
+git clone https://github.com/cskwork/improve-code-skill
+ln -s <span class="g">"$(pwd)/improve-code-skill"</span> ~/.agents/skills/improve-code</pre>
+      <p>Then, in your assistant, start it and answer its first question:</p>
+      <pre><span class="g">&gt;</span> improve-code
+<span class="c"># or simply: "clean up this file" / "make this module easier to change"</span></pre>
+    </section>
+
+    <section class="doc" id="faq">
+      <h2><span class="n">9</span>FAQ</h2>
+      <dl class="gloss">
+        <div><dt>Do I need to be a programmer?</dt><dd>No. You drive it through an AI assistant, and it explains what it is doing in plain language as it goes.</dd></div>
+        <div><dt>Will it break my code?</dt><dd>It works only while tests pass and moves in tiny steps. If a step breaks a test, it undoes that step instead of pushing on.</dd></div>
+        <div><dt>Is it tied to one tool?</dt><dd>No. It uses whatever code tools your environment happens to have, and works without any special one.</dd></div>
+        <div><dt>Where do I learn more?</dt><dd>The full skill and its reference docs live on <a href="https://github.com/cskwork/improve-code-skill">GitHub</a>.</dd></div>
+      </dl>
+      <a class="backtop" href="#what">&uarr; back to top</a>
+    </section>
+
+    <footer>
+      <a href="index.html">&larr; Back to the landing page</a> · improve-code is a Claude Code skill, and works in Codex too.
+    </footer>
+  </main>
+</div>
+
+</body>
+</html>
