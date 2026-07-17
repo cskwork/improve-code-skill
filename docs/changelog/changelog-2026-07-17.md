@@ -32,3 +32,28 @@ A focused background research workflow ran 5 parallel web-research agents (agent
 
 - No executable validation script yet (e.g. a frontmatter/line-count linter). Add one if the skill is distributed widely.
 - Published: `git init` done, public repo `cskwork/improve-code-skill` with a GitHub Pages landing page (`index.html`) and an easy-to-read guide (`guide.html`, linked from the landing hero), and installed for Claude Code + Codex via a single `~/.agents/skills/improve-code` symlink.
+
+---
+
+# Enhancement — visual as-is → to-be at Step 4
+
+Step 4 now *shows* the plan instead of only listing it: it renders a self-contained **as-is → to-be** HTML (current vs proposed structure, blast radius before and after, one card per fix), opens it in the browser, and narrates it before the user picks. Added `reference/VISUAL-DIFF.md` (procedure) and `reference/as-is-to-be.template.html` (offline fallback + worked example). Touched `SKILL.md` (Step 4 body + Done-when, on-demand disclosure list) and `README.md` (What-it-does step 4, file map, Sources).
+
+## Decisions
+
+- **Insert at Step 4, not a new step.** Step 4 (Agree the plan) is the user's decision point, so the visual serves that decision directly. Rejected a new standalone step (renumbers 5–8 and ripples every "Step N" cross-reference) and rejected Step 3 (diagnosis is internal analysis; the user is not choosing yet).
+
+- **The archify approach, brought in tool-agnostically — not a hard dependency.** The as-is/to-be *twin diagram as self-contained HTML* is the archify technique. `improve-code` adopts the approach and prefers an archify-style toolchain when the environment provides one, else falls back to a bundled offline template. Rejected hard-wiring the `supergoal` skill's vendored `templates/archify/` path: it would break this skill's standing "self-contained; names no other skill in its instructions" decision (recorded above) and would fail everywhere the toolchain is absent. `supergoal` / archify is named only in this changelog and the README Sources line — never in `SKILL.md` or `reference/*` instructions — consistent with the tool-agnostic Step 2.
+
+- **One template file that is also the worked example.** `as-is-to-be.template.html` ships filled with a realistic order-pricing refactor (shallow → deep module, primitive obsession → `Money` value object, global singleton → injected `TaxPolicy` seam) and marked with `<!-- SLOT -->` replace points. Rejected generating HTML from scratch each run (variance, tokens, drift) and rejected a blank template plus a separate example — one openable file serves both, matching archify's `examples/` philosophy.
+
+- **Offline by construction.** No CDN or network: inline CSS, inline SVG node/edge drawing, a small inline theme-toggle script, dark/light using the project's own landing-page color tokens. Opens on a double-click and survives with the repo — mirroring archify's no-network guarantee.
+
+- **Draw-by-default, prose fallback.** The visual is the default at Step 4 but is skipped for a trivial one-symbol rename or when the user declines — a diagram that would cost more than the fix fails the same net-complexity gate the skill applies to code.
+
+## Verified
+
+- archify toolchain `doctor` passes in this workspace (confirms the preferred render path is real; Node ≥18).
+- Template carries zero external URLs (offline confirmed) with 8 fill slots.
+- All pointers resolve: `SKILL.md` → `VISUAL-DIFF.md` (×2) → `as-is-to-be.template.html`; README file-map links intact.
+- Opened `as-is-to-be.template.html` in the browser — renders the two-panel as-is → to-be with the blast-radius meter, legend, and fix cards; theme toggle works.
