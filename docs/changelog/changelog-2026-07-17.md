@@ -31,4 +31,4 @@ A focused background research workflow ran 5 parallel web-research agents (agent
 ## Not done (possible follow-ups)
 
 - No executable validation script yet (e.g. a frontmatter/line-count linter). Add one if the skill is distributed widely.
-- `git init` not run — the repo is currently plain files.
+- Published: `git init` done, public repo `cskwork/improve-code-skill` with a GitHub Pages landing page (`index.html`) and an easy-to-read guide (`guide.html`, linked from the landing hero), and installed for Claude Code + Codex via a single `~/.agents/skills/improve-code` symlink.
