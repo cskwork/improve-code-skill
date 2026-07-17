@@ -18,6 +18,7 @@ Three leading ideas carry the whole skill:
 Reference material is disclosed on demand:
 
 - Diagnosing (Step 3) and naming (Step 7): the full smell catalog, vocabulary, and principle set live in [PRINCIPLES.md](reference/PRINCIPLES.md).
+- Proposing (Step 4): how to render and open the as-is → to-be visual lives in [VISUAL-DIFF.md](reference/VISUAL-DIFF.md).
 - Testing and changing safely (Steps 5–6): the discipline and the move catalog live in [SAFE-REFACTOR.md](reference/SAFE-REFACTOR.md).
 - Documenting (Step 7): which doc to write, and how much, lives in [DOCS.md](reference/DOCS.md).
 
@@ -56,9 +57,11 @@ For every candidate fix, apply the **net-complexity gate**: does it remove more 
 
 ### 4. Agree the plan
 
-Present the prioritized fixes. Recommend the smallest high-leverage set rather than the whole list. Surface risk, and flag anything that contradicts an existing ADR (see [DOCS.md](reference/DOCS.md)) so the user can decide whether to reopen it. Let the user pick before you edit anything.
+Present the prioritized fixes — and *show* them, don't just list them. Render a self-contained **as-is → to-be** visual: the current structure and the proposed one side by side, the blast radius before and after, and one card per fix mapping a smell to its move. Open it in the browser and walk the user through it. Building and opening it tool-agnostically — an archify-style diagram toolchain if the environment has one, otherwise the bundled template — is covered in [VISUAL-DIFF.md](reference/VISUAL-DIFF.md). Draw it by default; drop to prose only for a trivial one-symbol change or when the user declines.
 
-**Done when:** the user has chosen which fixes to apply, or approved your recommendation.
+Recommend the smallest high-leverage set rather than the whole list. Surface risk, and flag anything that contradicts an existing ADR (see [DOCS.md](reference/DOCS.md)) so the user can decide whether to reopen it. Let the user pick before you edit anything.
+
+**Done when:** the user has seen the as-is → to-be visual (or agreed to skip it) and has chosen which fixes to apply, or approved your recommendation.
 
 ### 5. Pin behavior with tests
 
