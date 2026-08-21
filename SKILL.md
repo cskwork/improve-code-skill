@@ -15,12 +15,12 @@ Three leading ideas carry the whole skill:
 - **Blast radius** — how many places one change must touch. Good structure keeps it to one place (high **locality**).
 - **Seam** — a point where behavior can be substituted (inject a fake for the clock, network, filesystem, or DB). Seams are where tests attach and where internals get rewritten safely.
 
-Reference material is disclosed on demand:
+Reference material is disclosed on demand. Read each file before you start the step it serves:
 
-- Diagnosing (Step 3) and naming (Step 7): the full smell catalog, vocabulary, and principle set live in [PRINCIPLES.md](reference/PRINCIPLES.md).
-- Proposing (Step 4): how to render and open the as-is → to-be visual lives in [VISUAL-DIFF.md](reference/VISUAL-DIFF.md).
-- Testing and changing safely (Steps 5–6): the discipline and the move catalog live in [SAFE-REFACTOR.md](reference/SAFE-REFACTOR.md).
-- Documenting (Step 7): which doc to write, and how much, lives in [DOCS.md](reference/DOCS.md).
+- [PRINCIPLES.md](reference/PRINCIPLES.md) — the full smell catalog, vocabulary, and principle set. Diagnosing (Step 3) and naming (Step 7).
+- [VISUAL-DIFF.md](reference/VISUAL-DIFF.md) — how to render and open the as-is → to-be visual. Proposing (Step 4).
+- [SAFE-REFACTOR.md](reference/SAFE-REFACTOR.md) — the discipline and the move catalog. Testing and changing safely (Steps 5–6).
+- [DOCS.md](reference/DOCS.md) — which doc to write, and how much. Documenting (Step 7).
 
 ## Steps
 
@@ -37,15 +37,15 @@ Ask the user what to improve and why, unless the conversation has already made i
 
 Do not proceed on a guessed goal. If the request is broad ("clean this up"), narrow it to one target with the user first.
 
-**Done when:** you can state the goal back in one short paragraph (target + payoff + constraints) and the user confirms it.
+**Done when:** you can state the goal back in one short paragraph (target + payoff + constraints + definition of done) and the user confirms it.
 
 ### 2. Explore and pin the ground truth
 
-Read before proposing. Map the target — what it calls, what depends on it — using whatever code-navigation tools this environment offers: a codebase knowledge graph or language server when present, otherwise plain search and read. Choose the tools yourself; do not assume any particular one exists. When the exploration is broad, hand it to a read-only subagent so the main context keeps the picture, not the raw file dumps. State, in plain language, what the target does today.
+Read before proposing. Map the target — what it calls, what depends on it — using whatever code-navigation tools this environment offers: a codebase knowledge graph or language server when present, otherwise plain search and read. When the exploration is broad, hand it to a read-only subagent so the main context keeps the picture, not the raw file dumps. State, in plain language, what the target does today.
 
 Then run the existing test suite. Confirm it is **green** and fast. If it is red or flaky, stop and stabilize first — you cannot tell a regression from pre-existing noise otherwise.
 
-**Done when:** you can describe the target's current behavior in plain language, and you know its test state (green, red, or absent).
+**Done when:** you can describe the target's current behavior in plain language, and the test suite is green or absent — a red or flaky one is stabilized first.
 
 ### 3. Diagnose against the principle set
 
