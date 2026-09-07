@@ -1,6 +1,6 @@
 ---
 name: improve-code
-description: Improve and refactor a codebase for both AI-agent navigability and human readability, applying the change under green tests. Use when the user wants to refactor or restructure code; improve readability, maintainability, or module and interface design (SOLID, coupling, cohesion); make a codebase easier for an agent or teammate to navigate or onboard; or add the tests and docs a reshape needs.
+description: Refactor code for human readability and agent navigation. Use when module boundaries, naming, coupling, or structure make a scoped change difficult.
 ---
 
 # Improve Code
@@ -15,7 +15,7 @@ Three leading ideas carry the whole skill:
 - **Blast radius** — how many places one change must touch. Good structure keeps it to one place (high **locality**).
 - **Seam** — a point where behavior can be substituted (inject a fake for the clock, network, filesystem, or DB). Seams are where tests attach and where internals get rewritten safely.
 
-Reference material is disclosed on demand. Read each file before you start the step it serves:
+Consult the reference relevant to the current decision:
 
 - [PRINCIPLES.md](reference/PRINCIPLES.md) — the full smell catalog, vocabulary, and principle set. Diagnosing (Step 3) and naming (Step 7).
 - [VISUAL-DIFF.md](reference/VISUAL-DIFF.md) — how to render and open the as-is → to-be visual. Proposing (Step 4).
@@ -24,7 +24,7 @@ Reference material is disclosed on demand. Read each file before you start the s
 
 ## Steps
 
-Run them in order. Each ends on a checkable **Done when** line; finish it before starting the next.
+Use the steps as a workflow; reuse established scope and evidence instead of repeating completed work.
 
 ### 1. Set the goal
 
@@ -35,17 +35,17 @@ Ask the user what to improve and why, unless the conversation has already made i
 - **Constraints** — must behavior and the public interface stay identical? Any area that is off-limits?
 - **Definition of done** — the observable state that ends the task.
 
-Do not proceed on a guessed goal. If the request is broad ("clean this up"), narrow it to one target with the user first.
+For a broad request, inspect the code and recommend a bounded target. Ask only when a material goal or constraint remains unresolved.
 
-**Done when:** you can state the goal back in one short paragraph (target + payoff + constraints + definition of done) and the user confirms it.
+**Done when:** you can state the goal back in one short paragraph (target + payoff + constraints + definition of done) and it matches the user’s instruction or existing confirmation.
 
 ### 2. Explore and pin the ground truth
 
-Read before proposing. Map the target — what it calls, what depends on it — using whatever code-navigation tools this environment offers: a codebase knowledge graph or language server when present, otherwise plain search and read. When the exploration is broad, hand it to a read-only subagent so the main context keeps the picture, not the raw file dumps. State, in plain language, what the target does today.
+Read before proposing. Map the target — what it calls, what depends on it — using whatever code-navigation tools this environment offers: a codebase knowledge graph or language server when present, otherwise plain search and read. Use a bounded read-only subagent only when independent exploration reduces total work and delegation is available and authorized. State, in plain language, what the target does today.
 
-Then run the existing test suite. Confirm it is **green** and fast. If it is red or flaky, stop and stabilize first — you cannot tell a regression from pre-existing noise otherwise.
+Run the relevant existing checks and record the baseline. Separate pre-existing failures from regressions; stop only when they prevent meaningful verification of this target.
 
-**Done when:** you can describe the target's current behavior in plain language, and the test suite is green or absent — a red or flaky one is stabilized first.
+**Done when:** you can describe the target's current behavior in plain language, and the relevant baseline and any verification limitations are recorded.
 
 ### 3. Diagnose against the principle set
 
@@ -57,11 +57,11 @@ For every candidate fix, apply the **net-complexity gate**: does it remove more 
 
 ### 4. Agree the plan
 
-Present the prioritized fixes — and *show* them, don't just list them. Render a self-contained **as-is → to-be** visual: the current structure and the proposed one side by side, the blast radius before and after, and one card per fix mapping a smell to its move. Open it in the browser and walk the user through it. Building and opening it tool-agnostically — an archify-style diagram toolchain if the environment has one, otherwise the bundled template — is covered in [VISUAL-DIFF.md](reference/VISUAL-DIFF.md). Draw it by default; drop to prose only for a trivial one-symbol change or when the user declines.
+Explain the smallest useful fixes and their navigation impact. Use an **as-is → to-be** visual when structural changes are difficult to assess in prose or the user requests one; see [VISUAL-DIFF.md](reference/VISUAL-DIFF.md).
 
-Recommend the smallest high-leverage set rather than the whole list. Surface risk, and flag anything that contradicts an existing ADR (see [DOCS.md](reference/DOCS.md)) so the user can decide whether to reopen it. Let the user pick before you edit anything.
+Recommend the smallest high-leverage set rather than the whole list. Surface risk, and flag anything that contradicts an existing ADR (see [DOCS.md](reference/DOCS.md)) so the user can decide whether to reopen it. Proceed within the requested or confirmed scope. Ask before materially changing behavior, public contracts, or an unresolved architectural decision.
 
-**Done when:** the user has seen the as-is → to-be visual (or agreed to skip it) and has chosen which fixes to apply, or approved your recommendation.
+**Done when:** the chosen fixes and risks are clear and covered by the user’s existing authorization or a necessary scope decision.
 
 ### 5. Pin behavior with tests
 
@@ -71,11 +71,11 @@ Refactoring rests on tests that fail if behavior changes. For any area you will 
 
 ### 6. Apply surgically — one hat, small steps
 
-Wear the **refactoring hat**: change structure, not behavior. Apply one named move at a time from [SAFE-REFACTOR.md](reference/SAFE-REFACTOR.md) — deepen a shallow module, replace a nested conditional with **guard clauses**, introduce a parameter object or value object, rename a concept across every occurrence, inline a pass-through wrapper. Run the tests after each move: green means checkpoint it; red means revert that one step and retry smaller — do not debug forward.
+Wear the **refactoring hat**: change structure, not behavior. Apply one named move at a time from [SAFE-REFACTOR.md](reference/SAFE-REFACTOR.md) — deepen a shallow module, replace a nested conditional with **guard clauses**, introduce a parameter object or value object, rename a concept across every occurrence, inline a pass-through wrapper. Run focused checks after each coherent batch. If a new failure appears, inspect the latest change and correct or revert it without discarding unrelated work.
 
 Match the surrounding style. Touch only what the goal requires. Preserve existing **why-comments**. Any intended behavior change waits for a separate, test-first commit under the adding-function hat.
 
-**Done when:** every chosen fix is applied, the suite is green after each step, and the diff is scoped to the target with unrelated code untouched.
+**Done when:** every chosen fix is applied, the relevant checks pass after each batch, and the diff is scoped to the target with unrelated code untouched.
 
 ### 7. Make it navigable — names, docs, structure
 
@@ -89,6 +89,6 @@ Close the loop for the next reader, human or agent:
 
 ### 8. Verify and record
 
-Run the exact tests, linter, type checker, and build for the target. Report precisely what ran and what passed — quote the evidence; do not claim success without it. Then record the decision where the repo already keeps a trail — a changelog entry, an ADR, or the PR description — capturing the smell you fixed and the alternative you rejected and why.
+Run the repository-required tests and checks relevant to the target; reuse current results for unchanged state. Report precisely what ran and what passed — quote the evidence; do not claim success without it. Then record the decision where the repo already keeps a trail — a changelog entry, an ADR, or the PR description — capturing the smell you fixed and the alternative you rejected and why.
 
 **Done when:** the named checks are green with quoted evidence, and the decision is recorded.
