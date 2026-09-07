@@ -32,7 +32,7 @@ Never both in one edit or commit. A red test while wearing the refactoring hat m
 For each planned fix:
 
 1. Apply **one** named move (see catalog below), in the smallest step that stands alone.
-2. Run all tests.
+2. Run the tests protecting the changed behavior; broaden coverage at integration when warranted.
 3. Green → checkpoint (commit or note it). Red → revert this step and retry smaller.
 4. Repeat.
 
@@ -54,7 +54,7 @@ The common structure-preserving moves, each triggered by a smell from PRINCIPLES
 | Extract Class / Move Method | A class does two jobs (low cohesion) or a method envies another class |
 | Extract Interface (seam) | You need to inject a fake, or a real second implementation appears |
 
-Prefer automated tooling (LSP rename, IDE extract) over hand edits — it is behavior-preserving by construction.
+Prefer automated tooling (LSP rename, IDE extract) where reliable, then review and test its diff; generated edits can still miss dynamic references.
 
 ## Changes too big to do in place
 
@@ -71,7 +71,7 @@ Line coverage tells you which lines *ran*, not whether a wrong result would be *
 Definition of done for the refactoring phase:
 
 - The same tests are green *before and after* the pure-refactor steps (proof behavior held).
-- Full suite, linter, type checker, and build all pass — run the exact commands and quote the result.
+- Repository-required checks for the affected surface pass; name any pre-existing failures and checks not run. Reuse current results for unchanged state.
 - Any intended behavior change is a separate, test-first, separately-committed change.
 
 Report what you actually ran. Do not claim success without the output.
