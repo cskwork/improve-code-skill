@@ -1,13 +1,6 @@
 # Visual as-is → to-be — show the plan before you edit
 
-Step 4 is where the user decides. A prioritized fix list reads as a wall of text; the payoff of a
-refactor — a smaller **blast radius**, a **deep module** where a shallow one was, a **seam** where a
-global was — is spatial, so draw it. Render a **self-contained HTML** that puts the current structure and
-the proposed structure side by side, open it, and narrate it while the user picks.
-
-This is the *archify approach*: an **as-is / to-be twin** — two diagrams of the same subject, one before
-and one after — plus fix cards that map each smell to the move that removes it. It is a **proposal
-artifact only**; no code changes until the user has chosen (Step 4's Done-when).
+Use this guide when a structural comparison would clarify a material decision or the user requests a visual. Render the current and proposed structure side by side. The diagram explains the refactor; it does not create another approval gate when the scope is already authorized.
 
 ## What to draw
 
@@ -52,15 +45,11 @@ touches in the **as-is** panel, show the move that collapses that in **to-be**, 
 blast-radius number. **Explain plainly by default** — the person deciding may not be an engineer, so keep
 the precise term but gloss it the first time it appears: *blast radius* = how many files one change forces
 you to touch; *deep module* = a small, simple door over a big, complex room; *seam* = a spot where you can
-slot in a stand-in so a test can run. Short words, everyday images, no wall of jargon. Close by asking
-which fixes to apply — the visual serves the decision, it does not replace it.
+slot in a stand-in so a test can run. Short words, everyday images, no wall of jargon. Ask which fixes to apply only when that scope decision remains unresolved.
 
 ## When to skip
 
-Default to drawing it. Skip only when the change is a single-symbol rename or a one-file tidy where a
-diagram would add nothing, or when the user declines the visual — say so and present the list in prose
-instead. A diagram that would take longer to draw than the fix takes to apply is itself a failed
-net-complexity gate.
+Use prose when it communicates the change adequately. A diagram that takes longer to interpret or maintain than the complexity it removes fails the same net-complexity test as an unnecessary abstraction.
 
 ## Sources
 
